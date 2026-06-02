@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 19th Birthday Jeni</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons & Animation -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- Firebase CDN (compat version for vanilla HTML) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'vibes': ['Great Vibes', 'cursive'],
+                        'playfair': ['Playfair Display', 'serif'],
+                        'inter': ['Inter', 'sans-serif'],
+                        'handwriting': ['Caveat', 'cursive'],
+                    },
+                    colors: {
+                        'dark-brown': '#1C1917',
+                        'deep-brown': '#292524',
+                        'soft-gold': '#D4AF37',
+                        'champagne': '#F7E7CE',
+                        'vintage-paper': '#F4ECD8',
+                        'soft-pink': '#E8D5D5',
+                    },
+                    backgroundImage: {
+                        'vintage-texture': "url('https://www.transparenttextures.com/patterns/old-wall.png')",
+                        'paper-texture': "url('https://www.transparenttextures.com/patterns/handmade-paper.png')",
+                        'denim-texture': "url('https://www.transparenttextures.com/patterns/denim.png')"
+                    },
+                    boxShadow: {
+                        'polaroid': '0 10px 20px rgba(0,0,0,0.3), 0 6px 6px rgba(0,0,0,0.2)',
+                        'paper': '0 4px 15px rgba(0,0,0,0.5)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #141211; /* Very dark rich tone */
+            color: #F7E7CE;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Subtle Noise overlay for premium vintage feel */
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+            opacity: 0.2;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .text-glow-gold {
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+
+        /* Polaroid Frame */
+        .polaroid {
+            background: #fff;
+            padding: 10px 10px 30px 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            position: relative;
+            transition: all 0.4s ease;
+        }
+        
+        .polaroid:hover {
+            transform: scale(1.05) rotate(0deg) !important;
+            z-index: 50;
+        }
+
+        .polaroid img {
+            width: 100%;
+            display: block;
+            filter: sepia(0.3) contrast(1.1);
+            transition: filter 0.4s ease;
+        }
+        
+        .polaroid:hover img {
+            filter: sepia(0) contrast(1);
+        }
+
+        /* Masking Tape */
+        .tape {
+            position: absolute;
+            background: rgba(255,255,255,0.4);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            backdrop-filter: blur(2px);
+            width: 100px;
+            height: 25px;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-2deg);
+            z-index: 10;
+        }
+
+        /* Safety Pin (CSS trick using emoji or icon) */
+        .pin {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            color: #ccc;
+            z-index: 10;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
+        }
+
+        /* Ornate Frame (CSS borders) */
+        .ornate-frame {
+            border: 2px solid #D4AF37;
+            padding: 4px;
+            position: relative;
+        }
+        .ornate-frame::before, .ornate-frame::after {
+            content: '';
+            position: absolute;
+            width: 20px; height: 20px;
+            border: 2px solid #D4AF37;
+        }
+        .ornate-frame::before { top: -6px; left: -6px; border-right: none; border-bottom: none; }
+        .ornate-frame::after { bottom: -6px; right: -6px; border-left: none; border-top: none; }
+        
+
+    </style>
+</head>
+<body class="bg-vintage-texture">
+    <div class="noise-overlay"></div>
+
+    <!-- Music Player -->
+    <div class="fixed top-6 right-6 z-50 rounded-full flex items-center justify-center p-1 bg-dark-brown border border-soft-gold shadow-2xl backdrop-blur-md">
+        <button id="music-btn" class="w-12 h-12 rounded-full text-soft-gold flex items-center justify-center hover:bg-soft-gold hover:text-dark-brown transition-colors">
+            <i class="fas fa-play text-lg"></i>
+        </button>
+        <!-- Hidden YouTube Player for Audio -->
+        <div id="youtube-player" class="hidden"></div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex flex-col items-center justify-center overflow-hidden z-10 px-4 py-20">
+        <!-- Floating Floral Decorations -->
+        <div class="absolute top-10 left-10 text-5xl opacity-30 rotate-12 drop-shadow-xl pointer-events-none">🌸</div>
+        <div class="absolute bottom-20 right-10 text-6xl opacity-20 -rotate-12 drop-shadow-xl pointer-events-none">🥀</div>
+        <div class="absolute top-40 right-20 text-4xl opacity-40 rotate-45 drop-shadow-xl pointer-events-none">🎀</div>
+
+        <div class="relative z-10 text-center flex flex-col items-center max-w-4xl mx-auto">
+            
+            <div data-aos="fade-down" data-aos-duration="1500" class="mb-4">
+                <p class="font-playfair italic text-soft-gold text-lg tracking-[0.3em] uppercase">Chapter Nineteen</p>
+            </div>
+
+            <!-- Hero Image - Ornate Frame -->
+            <div data-aos="zoom-in" data-aos-duration="2000" class="relative group mt-8 mb-12">
+                <div class="polaroid p-3 bg-vintage-paper rotate-[-2deg] transition-transform duration-700 max-w-xs md:max-w-md mx-auto">
+                    <div class="tape rotate-3 top-[-15px]"></div>
+                    <div class="ornate-frame">
+                        <!-- EDIT HERO IMAGE HERE -->
+                        <img src="https://i.pinimg.com/736x/b6/03/ea/b603ea520fd4ba3c5cde64134ff9db8c.jpg" alt="Jeni" class="w-full aspect-[3/4] object-cover">
+                    </div>
+                    <div class="mt-4 text-center font-handwriting text-dark-brown text-2xl rotate-1 opacity-80">
+                        19th Birthday ✨
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Text -->
+            <h1 data-aos="fade-up" data-aos-delay="400" data-aos-duration="1500" class="font-vibes text-7xl md:text-9xl text-soft-gold text-glow-gold mb-2 leading-tight">
+                Jeni
+            </h1>
+            
+            <h2 data-aos="fade-up" data-aos-delay="600" data-aos-duration="1500" class="font-playfair text-2xl md:text-4xl text-champagne italic mb-6">
+                Happy 19th Birthday
+            </h2>
+            
+            <p data-aos="fade-up" data-aos-delay="1000" data-aos-duration="2000" class="font-vibes text-4xl md:text-5xl text-soft-pink mt-4 opacity-90">
+                " i do, love you "
+            </p>
+            
+            <button data-aos="fade-up" data-aos-delay="1200" onclick="document.getElementById('about').scrollIntoView()" class="mt-16 text-soft-gold hover:text-white transition-colors animate-bounce">
+                <i class="fas fa-chevron-down text-3xl"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- Personal Message Section -->
+    <section id="about" class="py-24 relative z-10">
+        <div class="container mx-auto px-6 max-w-3xl">
+            <div data-aos="fade-up" class="bg-vintage-paper bg-paper-texture p-8 md:p-12 rounded-sm shadow-paper relative transform rotate-1 border border-[#e3d1bb]">
+                <!-- Pinned top -->
+                <div class="pin">📌</div>
+                
+                <h3 class="font-vibes text-5xl text-dark-brown mb-6 text-center">My Dear Jeni,</h3>
+                <div class="font-handwriting text-2xl md:text-3xl text-deep-brown leading-relaxed space-y-4 text-center">
+                    <p>
+                        Welcome to nineteen. A beautiful age for a truly beautiful soul.
+                    </p>
+                    <p>
+                        I hope this year brings you as much joy, grace, and elegance as you bring to the world every single day. Keep blooming, keep shining, and always know how much you are loved.
+                    </p>
+                    <p>
+                        I will always be your biggest supporter and will be there for you anytime. You can lean on me every time you feel tired. I will always be your safe space when you feel like the world is against and weighs you down, I will always stay even if you feel like everyone is leaving you. whatever happens just remember that im always here and i will always be here, cause no matter how cruel the world is, you'll always have me, we'll always find a way to conquer the challenges that life throws.
+                    </p>
+                    <p class="pt-4">
+                        With all my heart,<br>
+                        <span class="font-vibes text-4xl text-red-800">Your Secret Admirer</span>
+                    </p>
+                </div>
+                
+                <div class="absolute bottom-4 right-4 text-3xl opacity-60">🥀</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scrapbook Photo Gallery -->
+    <section class="py-24 relative z-10">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16" data-aos="fade-in">
+                <h2 class="font-vibes text-6xl md:text-7xl text-soft-gold text-glow-gold mb-4">Memories We Cherish</h2>
+                <div class="w-32 h-[1px] bg-soft-gold mx-auto opacity-50"></div>
+            </div>
+            
+            <!-- Collage Grid -->
+            <div class="relative max-w-5xl mx-auto min-h-[800px] md:min-h-[600px] flex flex-wrap justify-center gap-8 items-center py-10">
+                
+                <!-- Polaroid 1 -->
+                <div data-aos="zoom-in-right" class="polaroid w-64 md:w-72 rotate-[-6deg] z-10">
+                    <div class="tape"></div>
+                    <img src="https://i.pinimg.com/736x/b6/a5/a9/b6a5a9852541d576a441cc9cb21be50f.jpg" alt="Memory" class="aspect-[4/5] object-cover">
+                    <div class="mt-3 text-center font-handwriting text-dark-brown text-xl">the beauty of flowers is less than your beauty</div>
+                </div>
+
+                <!-- Ornate Frame Photo -->
+                <div data-aos="zoom-in" data-aos-delay="200" class="relative z-20 rotate-[3deg] shadow-2xl p-2 bg-dark-brown border-4 border-soft-gold w-72 md:w-80">
+                    <img src="https://i.pinimg.com/736x/d8/b0/c1/d8b0c1dacadc5a5746217e045fc71a66.jpg" alt="Memory" class="w-full aspect-square object-cover filter sepia-[0.5]">
+                    <div class="absolute -top-6 -right-6 text-5xl drop-shadow-lg">🎀</div>
+                </div>
+
+                <!-- Polaroid 2 -->
+                <div data-aos="zoom-in-left" data-aos-delay="400" class="polaroid w-60 md:w-64 rotate-[8deg] z-10">
+                    <div class="tape rotate-[-5deg]"></div>
+                    <img src="https://i.pinimg.com/736x/1e/b6/7e/1eb67e234a02ea329f849a18de7a2389.jpg" alt="Memory" class="aspect-[4/5] object-cover">
+                    <div class="mt-3 text-center font-handwriting text-dark-brown text-xl">because you are more beautiful than flowers, that's why this photo is more suitable</div>
+                </div>
+
+                <!-- Torn Paper Photo -->
+                <div data-aos="fade-up" data-aos-delay="300" class="relative z-10 w-64 md:w-72 rotate-[-4deg] mt-4 md:-mt-10">
+                    <div class="pin">📌</div>
+                    <img src="https://i.pinimg.com/736x/06/0a/64/060a643ccbb2de2736257da140f81dbb.jpg" alt="Memory" class="w-full border-[10px] border-white border-b-[40px] shadow-polaroid filter sepia-[0.2]">
+                    <div class="absolute bottom-2 left-0 w-full text-center font-handwriting text-dark-brown text-xl">Day One</div>
+                </div>
+
+                <!-- Polaroid 3 -->
+                <div data-aos="zoom-in" data-aos-delay="500" class="polaroid w-56 md:w-64 rotate-[5deg] z-10 mt-4 md:mt-10">
+                    <div class="tape rotate-[2deg]"></div>
+                    <img src="https://i.pinimg.com/736x/e0/d5/c0/e0d5c0a889fda5820727a9207db4438b.jpg" alt="Memory" class="aspect-square object-cover">
+                    <div class="mt-3 text-center font-handwriting text-dark-brown text-xl">And One Day</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vintage Slideshow Section -->
+    <section class="py-20 relative z-10 bg-deep-brown bg-opacity-50 border-y border-soft-gold/20">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="font-playfair text-3xl md:text-4xl text-champagne italic mb-10">A Glimpse in Time</h2>
+            
+            <div data-aos="zoom-in" class="relative max-w-[320px] md:max-w-[360px] mx-auto border-[8px] border-vintage-paper shadow-[0_15px_30px_rgba(0,0,0,0.8)] overflow-hidden rounded-sm bg-black group">
+                <div class="pin z-20">📌</div>
+                <video controls autoplay loop muted class="w-full aspect-[9/16] object-cover filter grayscale sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-700">
+                    <!-- EDIT VIDEO SOURCE HERE (Portrait video) -->
+                    <source src="vido_jeni.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wishes Wall (Love Notes) -->
+    <section class="py-24 relative z-10">
+        <div class="container mx-auto px-4 max-w-5xl">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="font-vibes text-6xl text-soft-pink mb-4">Love Notes for Jeni</h2>
+                <p class="font-playfair italic text-champagne">Leave a heartfelt message to celebrate her day.</p>
+            </div>
+            
+            <!-- Input Form - Vintage Envelope Style -->
+            <div data-aos="fade-up" data-aos-delay="100" class="bg-vintage-paper bg-paper-texture p-8 md:p-10 mb-16 shadow-paper max-w-2xl mx-auto relative border border-[#e3d1bb]">
+                <div class="absolute -top-4 -right-4 text-4xl">🕊️</div>
+                <div class="flex flex-col gap-4">
+                    <input type="text" id="wish-name" placeholder="Your Name..." class="bg-transparent border-b-2 border-dark-brown/30 px-2 py-3 text-dark-brown font-handwriting text-2xl focus:outline-none focus:border-dark-brown placeholder-dark-brown/50">
+                    <textarea id="wish-msg" placeholder="Write your love note..." rows="3" class="bg-transparent border-b-2 border-dark-brown/30 px-2 py-3 text-dark-brown font-handwriting text-2xl focus:outline-none focus:border-dark-brown placeholder-dark-brown/50 resize-none"></textarea>
+                    <div class="flex justify-center mt-6">
+                        <button onclick="addWish()" class="px-8 py-3 bg-dark-brown text-soft-gold font-playfair border border-soft-gold hover:bg-soft-gold hover:text-dark-brown transition-colors uppercase tracking-widest text-sm">
+                            Seal with a Kiss 💋
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wishes Grid (loaded from Firebase) -->
+            <div id="wishes-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                <!-- Notes will be loaded from Firestore here -->
+                <p id="wishes-loading" class="col-span-3 text-center font-handwriting text-champagne text-2xl opacity-60">Loading love notes... 🤍</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Section -->
+    <section class="py-24 relative z-10 text-center border-t border-soft-gold/20">
+        <div data-aos="zoom-in" class="inline-block relative">
+            <h2 class="font-vibes text-5xl md:text-7xl text-soft-gold mb-8">Shower her with Love</h2>
+            <button id="confetti-btn" class="group relative px-10 py-4 bg-transparent border border-soft-gold text-soft-gold font-playfair text-xl hover:bg-soft-gold hover:text-dark-brown transition-colors overflow-hidden">
+                <span class="relative z-10">Send Gold Dust ✨</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Thank You Section -->
+    <section class="py-24 relative z-10 flex justify-center items-center">
+        <div data-aos="fade-in" data-aos-duration="2000" class="text-center">
+            <h2 class="font-vibes text-7xl md:text-8xl text-champagne text-glow-gold">Thank You</h2>
+            <p class="font-handwriting text-3xl text-soft-pink mt-4 opacity-80">for making this day so special 🤍</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-soft-gold/20 relative z-10 bg-dark-brown/80 backdrop-blur-md">
+        <div class="container mx-auto px-4 text-center">
+            <p class="font-playfair text-champagne/50 text-sm mb-4">Dedicated to Jeni. Celebrating 19 years of elegance.</p>
+            <button onclick="shareLink()" class="font-inter text-xs tracking-widest uppercase text-soft-gold hover:text-white transition-colors border-b border-transparent hover:border-white pb-1">
+                Share this scrapbook
+            </button>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Init AOS
+        AOS.init({
+            once: true,
+            offset: 50,
+            duration: 1000,
+            easing: 'ease-out-cubic',
+        });
+
+        // Vintage Confetti (Soft Gold & Pink)
+        function triggerConfetti() {
+            const count = 150;
+            const defaults = {
+                origin: { y: 0.6 },
+                colors: ['#D4AF37', '#E8D5D5', '#FFFFFF', '#F7E7CE'],
+                ticks: 200,
+                gravity: 0.8,
+                scalar: 0.8
+            };
+
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(count * particleRatio)
+                }));
+            }
+
+            fire(0.25, { spread: 26, startVelocity: 55 });
+            fire(0.2, { spread: 60 });
+            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.6 });
+            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1 });
+            fire(0.1, { spread: 120, startVelocity: 45 });
+        }
+
+        document.getElementById('confetti-btn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            triggerConfetti();
+        });
+
+        window.onload = () => {
+            setTimeout(() => {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#D4AF37', '#E8D5D5', '#FFFFFF']
+                });
+            }, 1500);
+        };
+
+        // Music Player (YouTube API)
+        const musicBtn = document.getElementById('music-btn');
+        let player;
+        let isPlaying = false;
+        let autoplayAttempted = false;
+
+        // Load YouTube IFrame API asynchronously
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        window.onYouTubeIframeAPIReady = function() {
+            player = new YT.Player('youtube-player', {
+                height: '0',
+                width: '0',
+                videoId: '6k8cpUkKK4c', // ← EDIT LAGU DI SINI (YouTube Video ID)
+                playerVars: {
+                    'autoplay': 1,
+                    'controls': 0,
+                    'loop': 1,
+                    'playlist': '6k8cpUkKK4c',
+                    'mute': 0
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        };
+
+        function onPlayerReady(event) {
+            // Try autoplay immediately
+            event.target.playVideo();
+
+            // Fallback: autoplay on first user interaction (scroll or touch)
+            const autoplayOnInteraction = () => {
+                if (!autoplayAttempted && player) {
+                    autoplayAttempted = true;
+                    player.playVideo();
+                    isPlaying = true;
+                    musicBtn.innerHTML = '<i class="fas fa-pause text-lg"></i>';
+                    musicBtn.classList.add('animate-pulse');
+                }
+                document.removeEventListener('scroll', autoplayOnInteraction);
+                document.removeEventListener('click', autoplayOnInteraction);
+                document.removeEventListener('touchstart', autoplayOnInteraction);
+            };
+            document.addEventListener('scroll', autoplayOnInteraction, { once: true });
+            document.addEventListener('click', autoplayOnInteraction, { once: true });
+            document.addEventListener('touchstart', autoplayOnInteraction, { once: true });
+
+            // Music button toggle
+            musicBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                autoplayAttempted = true;
+                if (isPlaying) {
+                    player.pauseVideo();
+                    musicBtn.innerHTML = '<i class="fas fa-play text-lg"></i>';
+                    musicBtn.classList.remove('animate-pulse');
+                } else {
+                    player.playVideo();
+                    musicBtn.innerHTML = '<i class="fas fa-pause text-lg"></i>';
+                    musicBtn.classList.add('animate-pulse');
+                }
+                isPlaying = !isPlaying;
+            });
+        }
+
+        function onPlayerStateChange(event) {
+            // Sync button state when player starts playing
+            if (event.data === YT.PlayerState.PLAYING) {
+                isPlaying = true;
+                musicBtn.innerHTML = '<i class="fas fa-pause text-lg"></i>';
+                musicBtn.classList.add('animate-pulse');
+            } else if (event.data === YT.PlayerState.PAUSED) {
+                isPlaying = false;
+                musicBtn.innerHTML = '<i class="fas fa-play text-lg"></i>';
+                musicBtn.classList.remove('animate-pulse');
+            }
+        }
+
+
+
+        // =============================================
+        // FIREBASE FIRESTORE - Love Notes Wall
+        // =============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDMerWMbK9LOTufC5eDT8fvVzc3gxkVyZs",
+            authDomain: "ultah-jeni.firebaseapp.com",
+            projectId: "ultah-jeni",
+            storageBucket: "ultah-jeni.firebasestorage.app",
+            messagingSenderId: "510764491230",
+            appId: "1:510764491230:web:5e66ec72bfc1dd58c93d4f",
+            measurementId: "G-T32VXQKS7H"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const noteColors = ['bg-soft-pink', 'bg-[#e2e8f0]', 'bg-vintage-paper', 'bg-[#fdfbf7]'];
+        const pinStyles = [
+            '<div class="tape rotate-[-2deg]"></div>',
+            '<div class="pin">📌</div>',
+            '<div class="pin">📎</div>',
+            '<div class="tape rotate-[3deg]"></div>'
+        ];
+
+        // Render a single note card
+        function renderNote(data, prepend = false) {
+            const container = document.getElementById('wishes-container');
+            const newNote = document.createElement('div');
+            const bgClass = noteColors[data.colorIndex ?? Math.floor(Math.random() * noteColors.length)];
+            const pinHtml = pinStyles[data.pinIndex ?? Math.floor(Math.random() * pinStyles.length)];
+            const rotation = data.rotation ?? ((Math.random() * 8 - 4) + 'deg');
+
+            newNote.className = `${bgClass} p-6 shadow-md relative font-handwriting text-dark-brown opacity-0 transition-all duration-700 hover:rotate-0`;
+            newNote.style.transform = `rotate(${rotation})`;
+            newNote.innerHTML = `
+                ${pinHtml}
+                <p class="text-2xl leading-relaxed mt-4">${data.msg}</p>
+                <p class="text-xl mt-4 text-right">- ${data.name}</p>
+            `;
+
+            if (prepend) {
+                container.insertBefore(newNote, container.firstChild);
+            } else {
+                container.appendChild(newNote);
+            }
+
+            // Animate in
+            setTimeout(() => {
+                newNote.classList.remove('opacity-0');
+            }, 50);
+        }
+
+        // Load existing wishes from Firestore (real-time)
+        db.collection('wishes')
+            .orderBy('timestamp', 'desc')
+            .onSnapshot(snapshot => {
+                const loading = document.getElementById('wishes-loading');
+                if (loading) loading.remove();
+
+                // Only process new additions (avoid re-rendering all)
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === 'added') {
+                        renderNote(change.doc.data());
+                    }
+                });
+            }, err => {
+                const loading = document.getElementById('wishes-loading');
+                if (loading) loading.textContent = 'Could not load messages. 💔';
+                console.error('Firestore error:', err);
+            });
+
+        // Save new wish to Firestore
+        async function addWish() {
+            const nameInput = document.getElementById('wish-name');
+            const msgInput = document.getElementById('wish-msg');
+            const btn = document.querySelector('button[onclick="addWish()"]');
+
+            const name = nameInput.value.trim();
+            const msg = msgInput.value.trim();
+
+            if (!name || !msg) {
+                alert('Please write your note first. 🤍');
+                return;
+            }
+
+            // Disable button while saving
+            btn.disabled = true;
+            btn.textContent = 'Sending... 💌';
+
+            try {
+                await db.collection('wishes').add({
+                    name,
+                    msg,
+                    colorIndex: Math.floor(Math.random() * noteColors.length),
+                    pinIndex: Math.floor(Math.random() * pinStyles.length),
+                    rotation: (Math.random() * 8 - 4) + 'deg',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                nameInput.value = '';
+                msgInput.value = '';
+                triggerConfetti();
+            } catch (e) {
+                alert('Gagal menyimpan pesan. Coba lagi ya 🤍');
+                console.error(e);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Seal with a Kiss 💋';
+            }
+        }
+
+        // Share Link
+        function shareLink() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Happy 19th Birthday Jeni',
+                    text: 'Explore this premium digital scrapbook for Jeni 🤍',
+                    url: window.location.href,
+                }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert('Link copied to share the love 🤍');
+            }
+        }
+    </script>
+</body>
+</html>
